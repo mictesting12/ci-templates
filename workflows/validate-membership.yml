@@ -1,0 +1,10 @@
+name: validate-membership
+on: { workflow_call: {} }
+jobs:
+  ajv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i -g ajv-cli@5
+      - run: |
+          ajv validate -s https://raw.githubusercontent.com/believerscommon/core-protocol/main/schema/membership.schema.json                                 -d "members/**/*.json" -d "sponsors/**/*.json" -d "city-hubs/**/*.json" --strict=false

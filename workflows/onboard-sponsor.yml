@@ -1,0 +1,28 @@
+name: onboard-sponsor
+on:
+  repository_dispatch:
+    types: [onboard-sponsor]
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout registry
+        uses: actions/checkout@v4
+        with:
+          repository: believerscommon/registry
+          token: ${{ secrets.REPO_TOKEN }}
+      - name: Create file
+        run: |
+          mkdir -p sponsors
+          cat > sponsors/${{ github.event.client_payload.sponsor_id }}.json <<'EOF'
+${{ toJson(github.event.client_payload.membership_json) }}
+EOF
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.REPO_TOKEN }}
+          title: "Onboard sponsor: ${{ github.event.client_payload.company_name }}"
+          body: "Sponsor onboarding PR — legal signoff required."
+          base: main
+          commit-message: "onboard: ${{ github.event.client_payload.company_name }}"
+          branch: onboard/${{ github.event.client_payload.sponsor_id }}
